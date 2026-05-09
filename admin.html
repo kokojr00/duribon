@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>두리번 어드민</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #FAFAF5; --white: #ffffff; --ink: #1A1A18;
+      --green: #1A3A24; --gl: #EDF2EE; --line: #E4E0D8;
+      --muted: #8A8680; --shadow: 0 2px 16px rgba(0,0,0,.07);
+      --red: #c0392b; --red-light: #fdf0ee;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif; background: var(--bg); color: var(--ink); }
+
+    /* ── 비밀번호 화면 ── */
+    .pw-screen {
+      min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .pw-card { background: var(--white); border-radius: 24px; padding: 48px 36px; box-shadow: var(--shadow); width: 100%; max-width: 360px; text-align: center; }
+    .pw-logo { font-size: 22px; font-weight: 900; letter-spacing: -.05em; color: var(--green); margin-bottom: 8px; }
+    .pw-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+    .pw-card input { width: 100%; font-family: inherit; font-size: 16px; font-weight: 500; background: var(--bg); border: 1.5px solid var(--line); border-radius: 12px; padding: 14px 16px; outline: none; transition: border-color .2s; -webkit-appearance: none; text-align: center; letter-spacing: .2em; }
+    .pw-card input:focus { border-color: var(--green); }
+    .btn-login { display: block; width: 100%; margin-top: 14px; font-family: inherit; font-size: 15px; font-weight: 800; color: #fff; background: var(--green); padding: 16px; border-radius: 100px; border: none; cursor: pointer; transition: opacity .2s; }
+    .btn-login:hover { opacity: .85; }
+    .pw-error { font-size: 13px; color: var(--red); margin-top: 10px; display: none; }
+
+    /* ── 어드민 레이아웃 ── */
+    .admin-wrap { display: none; min-height: 100svh; }
+    nav { height: 56px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; background: var(--white); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-size: 17px; font-weight: 900; letter-spacing: -.05em; color: var(--green); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-tag { font-size: 11px; font-weight: 800; color: var(--muted); background: var(--line); padding: 4px 10px; border-radius: 100px; letter-spacing: .05em; }
+    .btn-logout { font-family: inherit; font-size: 12px; font-weight: 700; color: var(--muted); background: none; border: 1.5px solid var(--line); border-radius: 100px; padding: 6px 14px; cursor: pointer; transition: all .2s; }
+    .btn-logout:hover { border-color: var(--ink); color: var(--ink); }
+
+    .admin-body { padding: 32px 20px 60px; max-width: 1100px; margin: 0 auto; }
+    .admin-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    @media (min-width: 900px) { .admin-grid { grid-template-columns: 380px 1fr; align-items: start; } }
+
+    /* ── 카드 ── */
+    .card { background: var(--white); border-radius: 24px; padding: 28px 24px; box-shadow: var(--shadow); }
+    .card-title { font-size: 16px; font-weight: 900; letter-spacing: -.03em; margin-bottom: 4px; }
+    .card-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+
+    /* ── 매진 달력 ── */
+    .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .cal-month-label { font-size: 15px; font-weight: 900; letter-spacing: -.03em; }
+    .cal-nav { background: none; border: 1.5px solid var(--line); border-radius: 8px; width: 32px; height: 32px; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; color: var(--ink); }
+    .cal-nav:hover { border-color: var(--green); color: var(--green); }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+    .cal-dow { text-align: center; font-size: 10px; font-weight: 700; color: var(--muted); padding: 4px 0 8px; }
+    .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; font-size: 13px; font-weight: 700; position: relative; gap: 1px; transition: all .15s; }
+    .cal-day.empty { }
+    .cal-day.past { color: #d0cdc8; }
+    .cal-day.available { cursor: pointer; }
+    .cal-day.available:hover { background: var(--gl); color: var(--green); }
+    .cal-day.available:hover::after { content: '클릭'; font-size: 7px; font-weight: 800; color: var(--green); }
+    .cal-day.soldout { background: #fdf0ee; cursor: pointer; color: var(--red); }
+    .cal-day.soldout:hover { background: #f9e0dd; }
+    .sold-x { font-size: 8px; font-weight: 900; color: var(--red); line-height: 1; }
+    .cal-day.today:not(.soldout) { outline: 2px solid var(--green); }
+    .save-status { font-size: 12px; color: var(--muted); margin-top: 14px; min-height: 18px; text-align: center; transition: color .3s; }
+    .save-status.saving { color: var(--muted); }
+    .save-status.saved  { color: var(--green); font-weight: 700; }
+    .legend { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+    .legend-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+    .dot-avail   { background: var(--gl); }
+    .dot-soldout { background: #fdf0ee; border: 1.5px solid #f0c4bc; }
+    .dot-past    { background: var(--bg); border: 1.5px solid var(--line); }
+
+    /* ── 신청 목록 ── */
+    .bookings-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; gap: 8px; }
+    .bookings-count { font-size: 13px; color: var(--muted); }
+    .filter-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-btn { font-family: inherit; font-size: 12px; font-weight: 700; color: var(--muted); background: var(--bg); border: 1.5px solid var(--line); border-radius: 100px; padding: 6px 14px; cursor: pointer; transition: all .18s; }
+    .filter-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 560px; }
+    th { font-size: 11px; font-weight: 800; color: var(--muted); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); letter-spacing: .05em; white-space: nowrap; }
+    td { font-size: 13px; padding: 14px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg); }
+    .td-date { font-weight: 800; white-space: nowrap; }
+    .td-name { font-weight: 700; }
+    .td-phone { color: var(--muted); font-size: 12px; white-space: nowrap; }
+    .td-grades { display: flex; gap: 4px; flex-wrap: wrap; }
+    .grade-tag { font-size: 10px; font-weight: 800; background: var(--gl); color: var(--green); padding: 2px 8px; border-radius: 100px; white-space: nowrap; }
+    .td-memo { font-size: 12px; color: var(--muted); max-width: 160px; }
+    .td-time { font-size: 11px; color: var(--muted); white-space: nowrap; }
+    .empty-row td { text-align: center; color: var(--muted); padding: 40px; font-size: 14px; }
+    .loading-row td { text-align: center; color: var(--muted); padding: 40px; font-size: 14px; }
+
+    .badge { display: inline-block; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 100px; }
+    .badge-green { background: var(--gl); color: var(--green); }
+
+    /* ── 통계 ── */
+    .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: var(--white); border-radius: 18px; padding: 20px 18px; box-shadow: var(--shadow); }
+    .stat-label { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 8px; letter-spacing: .03em; }
+    .stat-num { font-size: 32px; font-weight: 900; letter-spacing: -.05em; line-height: 1; color: var(--ink); }
+    .stat-num span { font-size: 14px; font-weight: 500; color: var(--muted); }
+    .stat-card.highlight .stat-num { color: var(--green); }
+    .exclude-bar { display: flex; align-items: center; justify-content: flex-end; margin-bottom: 20px; gap: 10px; }
+    .exclude-status { font-size: 12px; color: var(--muted); }
+    .exclude-status.on { color: var(--red); font-weight: 700; }
+    .btn-exclude { font-family: inherit; font-size: 12px; font-weight: 700; padding: 7px 14px; border-radius: 100px; border: 1.5px solid var(--line); background: none; cursor: pointer; color: var(--muted); transition: all .2s; }
+    .btn-exclude:hover { border-color: var(--red); color: var(--red); }
+    .btn-exclude.on { border-color: var(--red); color: var(--red); background: #fdf0ee; }
+
+    /* ── 알림 신청 목록 ── */
+    .course-tag { font-size: 10px; font-weight: 800; background: #f1f1ec; color: var(--ink); padding: 2px 8px; border-radius: 100px; white-space: nowrap; }
+    .td-courses { display: flex; gap: 4px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+<!-- 비밀번호 화면 -->
+<div class="pw-screen" id="pwScreen">
+  <div class="pw-card">
+    <div class="pw-logo">두리번</div>
+    <div class="pw-sub">어드민 페이지</div>
+    <input type="password" id="pwInput" placeholder="비밀번호" />
+    <button class="btn-login" id="btnLogin">로그인</button>
+    <div class="pw-error" id="pwError">비밀번호가 틀렸어요.</div>
+  </div>
+</div>
+
+<!-- 어드민 화면 -->
+<div class="admin-wrap" id="adminWrap">
+  <nav>
+    <div class="nav-logo">두리번</div>
+    <div class="nav-right">
+      <span class="nav-tag">ADMIN</span>
+      <button class="btn-logout" id="btnLogout">로그아웃</button>
+    </div>
+  </nav>
+
+  <div class="admin-body">
+
+    <!-- 통계 -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">페이지 방문자</div>
+        <div class="stat-num" id="statVisitors">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">신청페이지 진입</div>
+        <div class="stat-num" id="statCta">—</div>
+      </div>
+      <div class="stat-card highlight">
+        <div class="stat-label">전환율</div>
+        <div class="stat-num" id="statRate">—</div>
+      </div>
+    </div>
+
+    <!-- 내 기기 제외 -->
+    <div class="exclude-bar">
+      <span class="exclude-status" id="excludeStatus"></span>
+      <button class="btn-exclude" id="btnExclude"></button>
+    </div>
+
+    <div class="admin-grid">
+
+      <!-- 매진 날짜 관리 -->
+      <div class="card">
+        <div class="card-title">매진 날짜 관리</div>
+        <div class="card-sub">날짜를 클릭해 매진/해제를 토글해요.<br/>변경사항은 자동으로 저장돼요.</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot dot-avail"></div>예약 가능</div>
+          <div class="legend-item"><div class="legend-dot dot-soldout"></div>매진</div>
+          <div class="legend-item"><div class="legend-dot dot-past"></div>지난 날짜</div>
+        </div>
+        <div class="cal-header">
+          <button class="cal-nav" id="adminCalPrev">‹</button>
+          <div class="cal-month-label" id="adminCalLabel"></div>
+          <button class="cal-nav" id="adminCalNext">›</button>
+        </div>
+        <div class="cal-grid" id="adminCalGrid"></div>
+        <div class="save-status" id="saveStatus"></div>
+      </div>
+
+      <!-- 예약 신청 목록 -->
+      <div class="card">
+        <div class="bookings-header">
+          <div class="card-title">예약 신청 목록</div>
+          <div class="bookings-count" id="bookingsCount"></div>
+        </div>
+        <div class="card-sub" style="margin-bottom:16px;">최신 신청 순으로 표시돼요.</div>
+        <div class="filter-row" id="filterRow">
+          <button class="filter-btn active" data-filter="all">전체</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>탐험날짜</th>
+                <th>이름</th>
+                <th>연락처</th>
+                <th>아이</th>
+                <th>학년</th>
+                <th>메모</th>
+                <th>신청일</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsTbody">
+              <tr class="loading-row"><td colspan="7">신청 내역 불러오는 중...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 알림 신청 목록 -->
+      <div class="card" style="grid-column: 1 / -1;">
+        <div class="bookings-header">
+          <div class="card-title">코스 오픈 알림 신청 목록</div>
+          <div class="bookings-count" id="notificationsCount"></div>
+        </div>
+        <div class="card-sub" style="margin-bottom:16px;">성수·연남·북촌 코스 알림을 신청한 연락처예요.</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>연락처</th>
+                <th>관심 코스</th>
+                <th>신청일</th>
+              </tr>
+            </thead>
+            <tbody id="notificationsTbody">
+              <tr class="loading-row"><td colspan="3">불러오는 중...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getFirestore, collection, doc, getDoc, getDocs, setDoc, query, orderBy, getCountFromServer }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCdnU7xVeTvLW-ZVD1Z9g3J50txI3_LE28",
+    authDomain:        "duribeon-556a0.firebaseapp.com",
+    projectId:         "duribeon-556a0",
+    storageBucket:     "duribeon-556a0.firebasestorage.app",
+    messagingSenderId: "968053597624",
+    appId:             "1:968053597624:web:fd0baf6c2f2fac101edb4d",
+    measurementId:     "G-2G6L38PL5P"
+  };
+
+  // ── 비밀번호 (변경 가능) ──
+  const ADMIN_PASSWORD = 'duri2026';
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // ── 로그인 ──
+  function checkAuth() {
+    return sessionStorage.getItem('duribeon_admin') === 'ok';
+  }
+  function showAdmin() {
+    document.getElementById('pwScreen').style.display = 'none';
+    document.getElementById('adminWrap').style.display = 'block';
+    initAdmin();
+  }
+
+  if (checkAuth()) showAdmin();
+
+  document.getElementById('btnLogin').addEventListener('click', () => {
+    const val = document.getElementById('pwInput').value;
+    if (val === ADMIN_PASSWORD) {
+      sessionStorage.setItem('duribeon_admin', 'ok');
+      document.getElementById('pwError').style.display = 'none';
+      showAdmin();
+    } else {
+      document.getElementById('pwError').style.display = 'block';
+    }
+  });
+  document.getElementById('pwInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('btnLogin').click();
+  });
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    sessionStorage.removeItem('duribeon_admin');
+    location.reload();
+  });
+
+  // ── 어드민 초기화 ──
+  let soldoutDates = [];
+  let allBookings  = [];
+  let adminYear    = new Date().getFullYear();
+  let adminMonth   = new Date().getMonth();
+  let saveTimer    = null;
+
+  // ── 내 기기 제외 ──
+  const EXCLUDE_KEY = 'duribeon_exclude';
+  function updateExcludeUI() {
+    const isOn = !!localStorage.getItem(EXCLUDE_KEY);
+    const btn = document.getElementById('btnExclude');
+    const status = document.getElementById('excludeStatus');
+    btn.textContent = isOn ? '제외 해제하기' : '내 기기 방문 제외하기';
+    btn.className = 'btn-exclude' + (isOn ? ' on' : '');
+    status.textContent = isOn ? '현재 이 기기는 방문자 집계에서 제외돼요' : '';
+    status.className = 'exclude-status' + (isOn ? ' on' : '');
+  }
+  updateExcludeUI();
+  document.getElementById('btnExclude').addEventListener('click', () => {
+    if (localStorage.getItem(EXCLUDE_KEY)) localStorage.removeItem(EXCLUDE_KEY);
+    else localStorage.setItem(EXCLUDE_KEY, '1');
+    updateExcludeUI();
+  });
+
+  let allNotifications = [];
+
+  async function initAdmin() {
+    // 매진 날짜 로드
+    try {
+      const snap = await getDoc(doc(db, 'config', 'soldout'));
+      soldoutDates = snap.exists() ? (snap.data().dates || []) : [];
+    } catch(e) { soldoutDates = []; }
+    renderAdminCal();
+
+    // 예약 목록 로드
+    try {
+      const snap = await getDocs(query(collection(db, 'bookings'), orderBy('createdAt', 'desc')));
+      allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) { allBookings = []; }
+    renderBookings('all');
+    buildFilters();
+
+    // 통계 로드
+    try {
+      const [vSnap, cSnap] = await Promise.all([
+        getCountFromServer(collection(db, 'visitors')),
+        getCountFromServer(collection(db, 'cta_clicks'))
+      ]);
+      const v = vSnap.data().count;
+      const c = cSnap.data().count;
+      document.getElementById('statVisitors').textContent = v.toLocaleString();
+      document.getElementById('statCta').textContent = c.toLocaleString();
+      document.getElementById('statRate').innerHTML = v > 0
+        ? `${Math.round(c/v*100)}<span>%</span>`
+        : '—';
+    } catch(e) { console.error('통계 로드 실패', e); }
+
+    // 알림 신청 목록 로드
+    try {
+      const snap = await getDocs(query(collection(db, 'notifications'), orderBy('createdAt', 'desc')));
+      allNotifications = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) { allNotifications = []; }
+    renderNotifications();
+  }
+
+  // ── 어드민 달력 ──
+  const DAYS = ['일','월','화','수','목','금','토'];
+  const MONTHS_KO = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+
+  function renderAdminCal() {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const firstDow = new Date(adminYear, adminMonth, 1).getDay();
+    const lastDay  = new Date(adminYear, adminMonth + 1, 0).getDate();
+
+    document.getElementById('adminCalLabel').textContent = `${adminYear}년 ${MONTHS_KO[adminMonth]}`;
+
+    let html = DAYS.map(d => `<div class="cal-dow">${d}</div>`).join('');
+    for (let i = 0; i < firstDow; i++) html += '<div class="cal-day empty"></div>';
+
+    for (let d = 1; d <= lastDay; d++) {
+      const ds = `${adminYear}-${String(adminMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isPast    = ds < todayStr;
+      const isSoldout = soldoutDates.includes(ds);
+      const isToday   = ds === todayStr;
+
+      let cls = 'cal-day';
+      if (isPast)         cls += ' past';
+      else if (isSoldout) cls += ' soldout';
+      else                cls += ' available';
+      if (isToday) cls += ' today';
+
+      const inner = isSoldout ? `${d}<span class="sold-x">매진</span>` : d;
+      html += `<div class="${cls}" data-date="${ds}">${inner}</div>`;
+    }
+
+    document.getElementById('adminCalGrid').innerHTML = html;
+
+    // 클릭 이벤트 (과거 제외)
+    document.querySelectorAll('#adminCalGrid .cal-day:not(.past):not(.empty)').forEach(el => {
+      el.addEventListener('click', () => toggleSoldout(el.dataset.date));
+    });
+  }
+
+  async function toggleSoldout(dateStr) {
+    const idx = soldoutDates.indexOf(dateStr);
+    if (idx === -1) soldoutDates.push(dateStr);
+    else soldoutDates.splice(idx, 1);
+    renderAdminCal();
+
+    // 디바운스 저장
+    clearTimeout(saveTimer);
+    const status = document.getElementById('saveStatus');
+    status.textContent = '저장 중...'; status.className = 'save-status saving';
+    saveTimer = setTimeout(async () => {
+      try {
+        await setDoc(doc(db, 'config', 'soldout'), { dates: soldoutDates });
+        status.textContent = '✓ 저장 완료'; status.className = 'save-status saved';
+        setTimeout(() => { status.textContent = ''; }, 2000);
+      } catch(e) {
+        status.textContent = '저장 실패. 다시 시도해주세요.'; status.className = 'save-status';
+      }
+    }, 600);
+  }
+
+  document.getElementById('adminCalPrev').addEventListener('click', () => {
+    adminMonth--; if (adminMonth < 0) { adminMonth = 11; adminYear--; } renderAdminCal();
+  });
+  document.getElementById('adminCalNext').addEventListener('click', () => {
+    adminMonth++; if (adminMonth > 11) { adminMonth = 0; adminYear++; } renderAdminCal();
+  });
+
+  // ── 예약 목록 렌더 ──
+  function renderBookings(filterDate) {
+    const list = filterDate === 'all' ? allBookings : allBookings.filter(b => b.date === filterDate);
+    document.getElementById('bookingsCount').textContent = `총 ${list.length}건`;
+
+    if (!list.length) {
+      document.getElementById('bookingsTbody').innerHTML = '<tr class="empty-row"><td colspan="7">신청 내역이 없어요.</td></tr>';
+      return;
+    }
+
+    const html = list.map(b => {
+      const grades  = (b.grades || []).map(g => `<span class="grade-tag">${g}</span>`).join('');
+      const dateStr = b.date ? b.date.replace(/-/g, '.') : '-';
+      const timeStr = b.createdAt?.toDate ? b.createdAt.toDate().toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '-';
+      return `
+        <tr>
+          <td class="td-date">${dateStr}</td>
+          <td class="td-name">${b.name || '-'}</td>
+          <td class="td-phone">${b.phone || '-'}</td>
+          <td>${b.kids ? b.kids+'명' : '-'}</td>
+          <td><div class="td-grades">${grades || '-'}</div></td>
+          <td class="td-memo">${b.memo || ''}</td>
+          <td class="td-time">${timeStr}</td>
+        </tr>`;
+    }).join('');
+    document.getElementById('bookingsTbody').innerHTML = html;
+  }
+
+  function renderNotifications() {
+    document.getElementById('notificationsCount').textContent = `총 ${allNotifications.length}건`;
+    if (!allNotifications.length) {
+      document.getElementById('notificationsTbody').innerHTML = '<tr class="empty-row"><td colspan="3">알림 신청 내역이 없어요.</td></tr>';
+      return;
+    }
+    const html = allNotifications.map(n => {
+      const courses  = (n.courses || []).map(c => `<span class="course-tag">${c}</span>`).join('');
+      const timeStr  = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '-';
+      return `
+        <tr>
+          <td class="td-phone">${n.phone || '-'}</td>
+          <td><div class="td-courses">${courses || '-'}</div></td>
+          <td class="td-time">${timeStr}</td>
+        </tr>`;
+    }).join('');
+    document.getElementById('notificationsTbody').innerHTML = html;
+  }
+
+  function buildFilters() {
+    const dates = [...new Set(allBookings.map(b => b.date).filter(Boolean))].sort();
+    const row = document.getElementById('filterRow');
+    dates.forEach(date => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.dataset.filter = date;
+      btn.textContent = date.replace(/-/g, '.');
+      row.appendChild(btn);
+    });
+    row.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        row.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderBookings(btn.dataset.filter);
+      });
+    });
+  }
+</script>
+</body>
+</html>

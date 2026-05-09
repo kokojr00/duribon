@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>두리번 광고 시안</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #111;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+      padding: 48px 32px 80px;
+      word-break: keep-all;
+    }
+    .page-title {
+      text-align: center; color: #444; font-size: 11px;
+      letter-spacing: .1em; text-transform: uppercase; margin-bottom: 48px;
+    }
+    .grid {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .card { display: flex; flex-direction: column; gap: 12px; }
+    .card-label { color: #555; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+    .card-label strong { color: #999; }
+
+    /* 미리보기 — 1080×1350 @ 37% */
+    .pw {
+      width: 400px;
+      height: 500px;
+      overflow: hidden;
+      border-radius: 8px;
+      flex-shrink: 0;
+      box-shadow: 0 8px 48px rgba(0,0,0,.7);
+      position: relative;
+    }
+    .ad {
+      width: 1080px;
+      height: 1350px;
+      transform: scale(0.37037);
+      transform-origin: top left;
+      position: absolute;
+      top: 0; left: 0;
+      overflow: hidden;
+    }
+
+
+    /* ════════════════════════════
+       A안 — 공감 텍스트
+    ════════════════════════════ */
+    .va {
+      background: #FAFAF5;
+      display: flex;
+      flex-direction: column;
+      padding: 88px 92px;
+    }
+    /* 상황 묘사 — 작고 흐리게 */
+    .va-situation {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 52px;
+    }
+    .va-sit-line {
+      font-size: 52px; font-weight: 600;
+      letter-spacing: -.04em; line-height: 1.6;
+      color: #B8B4B0;
+    }
+    /* 감정 결론 — 크게, 무겁게 */
+    .va-punch {
+      font-size: 136px; font-weight: 900;
+      letter-spacing: -.07em; line-height: .98;
+      color: #1A1A18;
+      margin-bottom: 64px;
+    }
+    .va-foot {
+      border-top: 1.5px solid #E4E0D8;
+      padding-top: 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .va-brand {
+      font-size: 34px; font-weight: 900;
+      letter-spacing: -.04em; color: #1A3A24;
+    }
+    .va-cta {
+      font-size: 30px; font-weight: 700;
+      color: #1A3A24; text-decoration: none;
+      border-bottom: 2px solid #1A3A24;
+      padding-bottom: 4px;
+    }
+
+
+    /* ════════════════════════════
+       B안 — 카카오톡
+    ════════════════════════════ */
+    .vb {
+      background: #9CADB7;
+      display: flex; flex-direction: column;
+    }
+    /* 상단 헤더 */
+    .vb-header {
+      background: rgba(0,0,0,.2);
+      padding: 56px 52px 36px;
+      display: flex; align-items: center; gap: 20px;
+      flex-shrink: 0;
+    }
+    .vb-back { font-size: 50px; color: #fff; line-height: 1; }
+    .vb-hname { font-size: 38px; font-weight: 700; color: #fff; flex: 1; letter-spacing: -.02em; }
+    .vb-hmore { font-size: 44px; color: rgba(255,255,255,.7); letter-spacing: .05em; }
+
+    /* 날짜 */
+    .vb-date {
+      text-align: center; font-size: 26px;
+      color: rgba(0,0,0,.35); font-weight: 500;
+      padding: 28px 0 8px;
+    }
+
+    /* 채팅 영역 */
+    .vb-chat {
+      flex: 1; padding: 20px 44px 32px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+    /* 메시지 행 */
+    .vb-row { display: flex; align-items: flex-end; gap: 14px; }
+    .vb-row.me { flex-direction: row-reverse; }
+
+    .vb-avatar {
+      width: 72px; height: 72px; border-radius: 22px;
+      background: #D4A843; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px;
+    }
+    .vb-avatar.wife {
+      background: #C47BA0;
+    }
+
+    .vb-col { display: flex; flex-direction: column; gap: 8px; max-width: 580px; }
+    .vb-name { font-size: 26px; color: rgba(0,0,0,.45); font-weight: 600; padding-left: 4px; }
+
+    .vb-bw { display: flex; align-items: flex-end; gap: 10px; }
+    .vb-row.me .vb-bw { flex-direction: row-reverse; }
+
+    .vb-bubble {
+      background: #fff;
+      border-radius: 18px 18px 18px 4px;
+      padding: 24px 30px;
+      font-size: 36px; font-weight: 500;
+      color: #1A1A18; line-height: 1.45;
+      letter-spacing: -.02em;
+    }
+    .vb-bubble.me {
+      background: #FEE500;
+      border-radius: 18px 18px 4px 18px;
+    }
+    .vb-time {
+      font-size: 22px; color: rgba(0,0,0,.3);
+      white-space: nowrap; flex-shrink: 0;
+      padding-bottom: 4px;
+    }
+
+    /* 링크 프리뷰 카드 */
+    .vb-link {
+      background: #fff;
+      border-radius: 18px 18px 18px 4px;
+      overflow: hidden;
+      max-width: 520px;
+    }
+    .vb-link-thumb {
+      background: #1A3A24;
+      padding: 28px 28px 24px;
+    }
+    .vb-link-brand { font-size: 28px; font-weight: 900; color: #A8D4B4; letter-spacing: -.03em; margin-bottom: 6px; }
+    .vb-link-desc { font-size: 26px; font-weight: 600; color: #fff; letter-spacing: -.02em; line-height: 1.4; }
+    .vb-link-url { font-size: 22px; color: #8A8680; padding: 16px 28px; }
+
+    /* 하단 입력창 */
+    .vb-input-bar {
+      background: rgba(0,0,0,.15);
+      padding: 20px 32px;
+      display: flex; align-items: center; gap: 16px;
+      flex-shrink: 0;
+    }
+    .vb-input {
+      flex: 1; background: #fff; border-radius: 100px;
+      padding: 20px 32px; font-size: 28px; color: #ccc;
+      letter-spacing: -.01em;
+    }
+    .vb-send {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: rgba(255,255,255,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; color: #fff;
+      flex-shrink: 0;
+    }
+
+
+    /* ════════════════════════════
+       D안 — 사진 배경
+    ════════════════════════════ */
+    .vd { position: relative; }
+    .vd-photo { position: absolute; inset: 0; }
+    .vd-photo img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center 25%; display: block;
+    }
+    .vd-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(10,28,16,.10) 0%,
+        rgba(10,28,16,.05) 30%,
+        rgba(10,28,16,.70) 58%,
+        rgba(10,28,16,.97) 100%
+      );
+    }
+    .vd-content {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      padding: 72px 84px;
+    }
+    .vd-logo {
+      font-size: 42px; font-weight: 900;
+      letter-spacing: -.05em; color: #fff;
+    }
+    .vd-bottom { margin-top: auto; }
+    .vd-q {
+      font-size: 74px; font-weight: 900;
+      letter-spacing: -.05em; line-height: 1.1;
+      color: #fff; margin-bottom: 36px;
+    }
+    .vd-div {
+      width: 48px; height: 2.5px;
+      background: #A8D4B4; margin-bottom: 32px;
+    }
+    .vd-ans {
+      font-size: 38px; font-weight: 700;
+      letter-spacing: -.04em; line-height: 1.55;
+      color: rgba(255,255,255,.8);
+      margin-bottom: 52px;
+    }
+    .vd-ans em { font-style: normal; color: #A8D4B4; }
+    .vd-foot { display: flex; align-items: center; gap: 24px; }
+    .vd-price-b { flex-shrink: 0; }
+    .vd-price {
+      font-size: 56px; font-weight: 900;
+      letter-spacing: -.05em; color: #fff; line-height: 1;
+    }
+    .vd-unit { font-size: 24px; color: rgba(255,255,255,.4); margin-top: 6px; }
+    .vd-cta {
+      flex: 1; background: #fff; border-radius: 100px;
+      padding: 38px; text-align: center;
+      font-size: 36px; font-weight: 900;
+      letter-spacing: -.02em; color: #1A3A24;
+      text-decoration: none; display: block;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-title">두리번 · Instagram 광고 시안 — 1080 × 1350px (4:5)</div>
+
+<div class="grid">
+
+  <!-- A안 -->
+  <div class="card">
+    <div class="card-label"><strong>A안</strong> — 공감 텍스트</div>
+    <div class="pw">
+      <div class="ad va">
+        <div class="va-situation">
+          <div class="va-sit-line">말해도 말해도 소용없고,</div>
+          <div class="va-sit-line">뺏으면 난리나고.</div>
+        </div>
+        <div class="va-punch">그 싸움이<br/>더<br/>지쳐요.</div>
+        <div class="va-foot">
+          <div class="va-brand">두리번</div>
+          <a href="https://duribeon-556a0.web.app" class="va-cta">지금 예약하기 →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B안 -->
+  <div class="card">
+    <div class="card-label"><strong>B안</strong> — 카카오톡 부부 대화</div>
+    <div class="pw">
+      <div class="ad vb">
+        <div class="vb-header">
+          <div class="vb-back">‹</div>
+          <div class="vb-hname">여보 🏠</div>
+          <div class="vb-hmore">···</div>
+        </div>
+
+        <div class="vb-date">토요일 오전</div>
+
+        <div class="vb-chat">
+          <!-- 남편 -->
+          <div class="vb-row">
+            <div class="vb-avatar">👨</div>
+            <div class="vb-col">
+              <div class="vb-name">남편</div>
+              <div class="vb-bw">
+                <div class="vb-bubble">이번 주말 민준이랑<br/>뭐 하지?</div>
+                <div class="vb-time">9:11</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 아내 -->
+          <div class="vb-row me">
+            <div class="vb-col">
+              <div class="vb-bw">
+                <div class="vb-time">9:14</div>
+                <div class="vb-bubble me">또 집에서 폰 전쟁<br/>할거같은데</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 남편 -->
+          <div class="vb-row">
+            <div class="vb-avatar">👨</div>
+            <div class="vb-col">
+              <div class="vb-bw">
+                <div class="vb-bubble">ㅋㅈㄴㅇ?</div>
+                <div class="vb-time">9:14</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 아내 2개 연속 -->
+          <div class="vb-row me">
+            <div class="vb-col">
+              <div class="vb-bw">
+                <div class="vb-time">9:16</div>
+                <div class="vb-bubble me">ㄴㄴ 지겹대. 이거 어때?</div>
+              </div>
+              <div class="vb-bw" style="margin-top:12px;">
+                <div class="vb-time">9:16</div>
+                <div class="vb-bubble me">폰 없이 나침반으로<br/>길 찾는 거래ㅋㅋ</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 링크 프리뷰 -->
+          <div class="vb-row me" style="margin-top:4px;">
+            <div class="vb-col">
+              <div class="vb-bw">
+                <div class="vb-time">9:16</div>
+                <div class="vb-link">
+                  <div class="vb-link-thumb">
+                    <div class="vb-link-brand">두리번</div>
+                    <div class="vb-link-desc">서울 가족 도시 탐험<br/>나침반 + 지도로 용산을 누벼요</div>
+                  </div>
+                  <div class="vb-link-url">duribeon-556a0.web.app</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vb-input-bar">
+          <div class="vb-input">메시지 보내기</div>
+          <div class="vb-send">↑</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D안 -->
+  <div class="card">
+    <div class="card-label"><strong>D안</strong> — 사진 배경</div>
+    <div class="pw">
+      <div class="ad vd">
+        <div class="vd-photo">
+          <img src="https://images.unsplash.com/photo-1665121583006-46f2f6ce7add?w=1400&auto=format&fit=crop&q=85" alt="" />
+        </div>
+        <div class="vd-overlay"></div>
+        <div class="vd-content">
+          <div class="vd-logo">두리번</div>
+          <div class="vd-bottom">
+            <h2 class="vd-q">이번 주말도<br/>아이와 폰 문제로<br/>실랑이 중이신가요?</h2>
+            <div class="vd-div"></div>
+            <p class="vd-ans">휴대폰 없는 주말,<br/>지도와 나침반만 들고<br/><em>아이와 떠나보세요.</em></p>
+            <div class="vd-foot">
+              <div class="vd-price-b">
+                <div class="vd-price">₩39,000</div>
+                <div class="vd-unit">가족 1팀 · 용산 코스</div>
+              </div>
+              <a href="https://duribeon-556a0.web.app" class="vd-cta">지금 예약하기 →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
