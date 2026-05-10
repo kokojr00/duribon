@@ -393,10 +393,8 @@
         name: f.name.value.trim(), phone: f.phone.value.trim(),
         memo: f.memo.value.trim(), createdAt: serverTimestamp()
       });
-      document.getElementById('formWrap').style.display = 'none';
-      document.getElementById('success').style.display = 'block';
       gtag('event', 'purchase', { event_category: 'conversion', event_label: '예약_신청_완료' });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.location.href = 'success.html';
     } catch(err) {
       console.error(err);
       alert('전송 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.');

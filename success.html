@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>두리번 — 예약 완료</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2G6L38PL5P"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-2G6L38PL5P');
+    gtag('event', 'purchase', { event_category: 'conversion', event_label: '예약_신청_완료' });
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:    #FAFAF5;
+      --white: #ffffff;
+      --ink:   #1A1A18;
+      --green: #1A3A24;
+      --gl:    #EDF2EE;
+      --line:  #E4E0D8;
+      --muted: #8A8680;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      height: 60px;
+      border-bottom: 1px solid var(--line);
+      background: var(--bg);
+    }
+    .logo {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      color: var(--green);
+      text-decoration: none;
+    }
+    .nav-back {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: -.01em;
+    }
+    .nav-back:hover { color: var(--ink); }
+
+    /* ── PRICE BANNER ── */
+    .price-banner {
+      background: var(--white);
+      border-bottom: 1px solid var(--line);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .price-amount {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -.05em;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .price-includes {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .price-includes strong {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 64px 24px;
+      gap: 32px;
+    }
+
+    /* ── CHECK ICON ── */
+    .check-circle {
+      width: 72px;
+      height: 72px;
+      background: var(--ink);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .check-circle svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    /* ── TITLE ── */
+    .success-title {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      color: var(--ink);
+      text-align: center;
+    }
+
+    /* ── DETAIL CARD ── */
+    .detail-card {
+      background: var(--gl);
+      border-left: 3px solid var(--green);
+      border-radius: 0 12px 12px 0;
+      padding: 24px 28px;
+      max-width: 480px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .detail-card p {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+    .detail-card .highlight {
+      font-weight: 900;
+      color: var(--green);
+    }
+    .detail-card .sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── TOSS COPY ── */
+    .toss-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 18px;
+      max-width: 480px;
+      width: 100%;
+      cursor: pointer;
+    }
+    .toss-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .04em;
+      white-space: nowrap;
+    }
+    .toss-account {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: .02em;
+      flex: 1;
+    }
+    .toss-copy-btn {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--green);
+      background: var(--gl);
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: opacity .15s;
+    }
+    .toss-copy-btn:hover { opacity: .75; }
+    .toss-copy-btn.copied { color: #fff; background: var(--green); }
+
+    /* ── HOME BTN ── */
+    .home-btn {
+      display: inline-block;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--white);
+      background: var(--green);
+      text-decoration: none;
+      padding: 16px 40px;
+      border-radius: 100px;
+      letter-spacing: -.02em;
+      transition: opacity .2s;
+    }
+    .home-btn:hover { opacity: .82; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 20px 32px;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      letter-spacing: .02em;
+    }
+
+    @media (max-width: 480px) {
+      nav { padding: 0 20px; }
+      .price-banner { padding: 16px 20px; flex-direction: column; align-items: flex-start; gap: 6px; }
+      .price-amount { font-size: 28px; }
+      main { padding: 48px 20px; }
+      .success-title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="logo">두리번</a>
+    <a href="index.html" class="nav-back">← 메인으로</a>
+  </nav>
+
+  <div class="price-banner">
+    <div class="price-amount">₩39,000</div>
+    <div class="price-includes">
+      탐험 키트 · 미션 카드 포함<br/>
+      <strong>가족 1팀 기준 · 약 4시간 · 초등 1–6학년</strong>
+    </div>
+  </div>
+
+  <main>
+    <div class="check-circle">
+      <svg viewBox="0 0 32 32" fill="none">
+        <polyline points="6,17 13,24 26,10" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <h1 class="success-title">예약 신청이 완료되었어요!</h1>
+
+    <div class="detail-card">
+      <p>두리번 탐험 예약 신청이 완료되었어요.</p>
+      <p>
+        토스 <span class="highlight">100253716550</span> 계좌로<br/>
+        <span class="highlight">39,000원</span>을 입금해주시면 예약이 확정됩니다!
+      </p>
+      <p class="sub">입금이 확인되면 카카오로 상세 안내를 보내드릴게요.</p>
+    </div>
+
+    <div class="toss-row" onclick="copyAccount()">
+      <span class="toss-label">토스</span>
+      <span class="toss-account">100253716550</span>
+      <button class="toss-copy-btn" id="copyBtn">복사</button>
+    </div>
+
+    <a href="index.html" class="home-btn">메인으로 돌아가기</a>
+  </main>
+
+  <footer>© 2025 두리번 · hello@duribon.kr</footer>
+
+  <script>
+    function copyAccount() {
+      navigator.clipboard.writeText('100253716550').then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = '복사됨 ✓';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
