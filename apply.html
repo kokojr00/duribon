@@ -145,13 +145,13 @@
     <div id="formWrap">
       <div class="form-header">
         <div class="form-eyebrow">탐험 예약</div>
-        <h1 class="form-title">용산 코스<br/>예약하기</h1>
+        <h1 class="form-title">정동·덕수궁 코스<br/>예약하기</h1>
         <p class="form-sub">예약 후 카카오로 출발점 및 상세 안내를 드려요.</p>
       </div>
 
       <div class="summary-card">
         <div>
-          <div class="summary-course">용산 코스 · 가족 도시 탐험</div>
+          <div class="summary-course">정동·덕수궁 코스 · 가족 도시 탐험</div>
           <div class="summary-price">₩39,000 <span>/ 가족 1팀</span></div>
         </div>
         <div class="summary-detail">탐험 키트 포함<br/>약 4시간 · 초등 1–6학년</div>
@@ -232,15 +232,8 @@
       <div class="notify-section" style="margin-top:20px;">
         <div class="notify-eyebrow">Coming Soon</div>
         <div class="notify-title">다음 코스가 열리면<br/>알려드릴게요</div>
-        <div class="notify-sub">성수·연남·북촌 코스 중 알림 받을 코스를 선택해주세요.</div>
+        <div class="notify-sub">연남·북촌·서촌 코스 중 알림 받을 코스를 선택해주세요.</div>
         <div class="courses-list">
-          <div class="course-chip">
-            <input type="checkbox" name="notifyCourse" id="nc-seongsu" value="성수" />
-            <label for="nc-seongsu">
-              <div><div class="course-chip-name">성수</div><div class="course-chip-sub">산업 + 힙스터</div></div>
-              <div class="course-chip-badge">준비중</div>
-            </label>
-          </div>
           <div class="course-chip">
             <input type="checkbox" name="notifyCourse" id="nc-yeonnam" value="연남" />
             <label for="nc-yeonnam">
@@ -252,6 +245,13 @@
             <input type="checkbox" name="notifyCourse" id="nc-bukchon" value="북촌" />
             <label for="nc-bukchon">
               <div><div class="course-chip-name">북촌</div><div class="course-chip-sub">한옥 + 역사</div></div>
+              <div class="course-chip-badge">준비중</div>
+            </label>
+          </div>
+          <div class="course-chip">
+            <input type="checkbox" name="notifyCourse" id="nc-seochon" value="서촌" />
+            <label for="nc-seochon">
+              <div><div class="course-chip-name">서촌</div><div class="course-chip-sub">골목 + 예술</div></div>
               <div class="course-chip-badge">준비중</div>
             </label>
           </div>
@@ -388,7 +388,7 @@
     btn.disabled = true; btn.textContent = '전송 중...';
     try {
       await addDoc(collection(db, 'bookings'), {
-        course: '용산', date: selectedDate,
+        course: '정동·덕수궁', date: selectedDate,
         kids: Number(f.kids.value), grades,
         name: f.name.value.trim(), phone: f.phone.value.trim(),
         memo: f.memo.value.trim(), createdAt: serverTimestamp()
