@@ -116,6 +116,10 @@
     /* ── 알림 신청 목록 ── */
     .course-tag { font-size: 10px; font-weight: 800; background: #f1f1ec; color: var(--ink); padding: 2px 8px; border-radius: 100px; white-space: nowrap; }
     .td-courses { display: flex; gap: 4px; flex-wrap: wrap; }
+
+    /* ── 삭제 버튼 ── */
+    .btn-del { font-family: inherit; font-size: 11px; font-weight: 700; color: var(--muted); background: none; border: 1.5px solid var(--line); border-radius: 8px; padding: 4px 10px; cursor: pointer; transition: all .15s; white-space: nowrap; }
+    .btn-del:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
   </style>
 </head>
 <body>
@@ -206,10 +210,11 @@
                 <th>학년</th>
                 <th>메모</th>
                 <th>신청일</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="bookingsTbody">
-              <tr class="loading-row"><td colspan="7">신청 내역 불러오는 중...</td></tr>
+              <tr class="loading-row"><td colspan="8">신청 내역 불러오는 중...</td></tr>
             </tbody>
           </table>
         </div>
@@ -229,10 +234,11 @@
                 <th>연락처</th>
                 <th>관심 코스</th>
                 <th>신청일</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="notificationsTbody">
-              <tr class="loading-row"><td colspan="3">불러오는 중...</td></tr>
+              <tr class="loading-row"><td colspan="4">불러오는 중...</td></tr>
             </tbody>
           </table>
         </div>
@@ -244,7 +250,7 @@
 
 <script type="module">
   import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getFirestore, collection, doc, getDoc, getDocs, setDoc, query, orderBy, getCountFromServer }
+  import { getFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc, query, orderBy, getCountFromServer }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   const firebaseConfig = {
@@ -426,21 +432,25 @@
   });
 
   // ── 예약 목록 렌더 ──
+  let currentFilter = 'all';
+
   function renderBookings(filterDate) {
+    currentFilter = filterDate;
     const list = filterDate === 'all' ? allBookings : allBookings.filter(b => b.date === filterDate);
     document.getElementById('bookingsCount').textContent = `총 ${list.length}건`;
 
     if (!list.length) {
-      document.getElementById('bookingsTbody').innerHTML = '<tr class="empty-row"><td colspan="7">신청 내역이 없어요.</td></tr>';
+      document.getElementById('bookingsTbody').innerHTML = '<tr class="empty-row"><td colspan="8">신청 내역이 없어요.</td></tr>';
       return;
     }
 
-    const html = list.map(b => {
+    const tbody = document.getElementById('bookingsTbody');
+    tbody.innerHTML = list.map(b => {
       const grades  = (b.grades || []).map(g => `<span class="grade-tag">${g}</span>`).join('');
       const dateStr = b.date ? b.date.replace(/-/g, '.') : '-';
       const timeStr = b.createdAt?.toDate ? b.createdAt.toDate().toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '-';
       return `
-        <tr>
+        <tr data-id="${b.id}">
           <td class="td-date">${dateStr}</td>
           <td class="td-name">${b.name || '-'}</td>
           <td class="td-phone">${b.phone || '-'}</td>
@@ -448,33 +458,59 @@
           <td><div class="td-grades">${grades || '-'}</div></td>
           <td class="td-memo">${b.memo || ''}</td>
           <td class="td-time">${timeStr}</td>
+          <td><button class="btn-del" data-id="${b.id}" data-col="bookings">삭제</button></td>
         </tr>`;
     }).join('');
-    document.getElementById('bookingsTbody').innerHTML = html;
+
+    tbody.querySelectorAll('.btn-del').forEach(btn => {
+      btn.addEventListener('click', () => deleteRecord('bookings', btn.dataset.id));
+    });
   }
 
   function renderNotifications() {
     document.getElementById('notificationsCount').textContent = `총 ${allNotifications.length}건`;
     if (!allNotifications.length) {
-      document.getElementById('notificationsTbody').innerHTML = '<tr class="empty-row"><td colspan="3">알림 신청 내역이 없어요.</td></tr>';
+      document.getElementById('notificationsTbody').innerHTML = '<tr class="empty-row"><td colspan="4">알림 신청 내역이 없어요.</td></tr>';
       return;
     }
-    const html = allNotifications.map(n => {
+    const tbody = document.getElementById('notificationsTbody');
+    tbody.innerHTML = allNotifications.map(n => {
       const courses  = (n.courses || []).map(c => `<span class="course-tag">${c}</span>`).join('');
       const timeStr  = n.createdAt?.toDate ? n.createdAt.toDate().toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '-';
       return `
-        <tr>
+        <tr data-id="${n.id}">
           <td class="td-phone">${n.phone || '-'}</td>
           <td><div class="td-courses">${courses || '-'}</div></td>
           <td class="td-time">${timeStr}</td>
+          <td><button class="btn-del" data-id="${n.id}" data-col="notifications">삭제</button></td>
         </tr>`;
     }).join('');
-    document.getElementById('notificationsTbody').innerHTML = html;
+
+    tbody.querySelectorAll('.btn-del').forEach(btn => {
+      btn.addEventListener('click', () => deleteRecord('notifications', btn.dataset.id));
+    });
+  }
+
+  async function deleteRecord(colName, id) {
+    try {
+      await deleteDoc(doc(db, colName, id));
+      if (colName === 'bookings') {
+        allBookings = allBookings.filter(b => b.id !== id);
+        renderBookings(currentFilter);
+        buildFilters();
+      } else {
+        allNotifications = allNotifications.filter(n => n.id !== id);
+        renderNotifications();
+      }
+    } catch(e) {
+      alert('삭제 실패. 다시 시도해주세요.');
+    }
   }
 
   function buildFilters() {
     const dates = [...new Set(allBookings.map(b => b.date).filter(Boolean))].sort();
     const row = document.getElementById('filterRow');
+    row.innerHTML = '<button class="filter-btn active" data-filter="all">전체</button>';
     dates.forEach(date => {
       const btn = document.createElement('button');
       btn.className = 'filter-btn';
